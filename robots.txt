@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
 Sitemap: https://mgcarnevali.github.io/sitemap.xml
