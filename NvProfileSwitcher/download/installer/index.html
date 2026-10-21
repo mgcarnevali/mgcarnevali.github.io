@@ -17,7 +17,7 @@ p { line-height: 1.6; color: #b5c4ba; }
 <main>
 <h1 id="heading">Preparing your installer download…</h1>
 <p id="status" role="status">Finding the latest stable release on GitHub.</p>
-<p id="countdown" hidden>This tab will close in <strong id="seconds">3</strong> seconds…</p>
+<p id="countdown" hidden>This tab will close in <strong id="seconds">10</strong> seconds…</p>
 <p><a id="fallback" href="https://github.com/mgcarnevali/NvProfileSwitcher/releases/latest">Open the latest release manually</a></p>
 </main>
 <script>
@@ -54,7 +54,7 @@ p { line-height: 1.6; color: #b5c4ba; }
     status.textContent = 'If the download did not start, use the link below.';
     document.getElementById('countdown').hidden = false;
 
-    let seconds = 3;
+    let seconds = 10;
     const timer = setInterval(() => {
       seconds--;
       document.getElementById('seconds').textContent = seconds;
