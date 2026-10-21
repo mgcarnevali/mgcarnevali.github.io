@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Downloading NvProfileSwitcher — Installer</title>
+<title>NvProfileSwitcher download</title>
 <style>
 :root { color-scheme: dark; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
 body { min-height: 100vh; display: grid; place-items: center; margin: 0; background: #0b1110; color: #e6f0e9; }
@@ -15,8 +15,9 @@ p { line-height: 1.6; color: #b5c4ba; }
 </head>
 <body>
 <main>
-<h1>Preparing your installer download…</h1>
+<h1 id="heading">Preparing your installer download…</h1>
 <p id="status" role="status">Finding the latest stable release on GitHub.</p>
+<p id="countdown" hidden>This tab will close in <strong id="seconds">3</strong> seconds…</p>
 <p><a id="fallback" href="https://github.com/mgcarnevali/NvProfileSwitcher/releases/latest">Open the latest release manually</a></p>
 </main>
 <script>
@@ -30,20 +31,45 @@ p { line-height: 1.6; color: #b5c4ba; }
     if (!response.ok) throw new Error('GitHub API returned ' + response.status);
     const release = await response.json();
     const assets = Array.isArray(release.assets) ? release.assets : [];
-    const match = assets.find(asset => {
-      if (!asset || typeof asset.name !== 'string') return false;
-      if (asset.name.toLowerCase().endsWith('.sha256')) return false;
-      return /^NvProfileSwitcher-Setup-v[0-9]+(?:\.[0-9]+)*\.exe$/i.test(asset.name);
-    });
+    const match = assets.find(asset =>
+      asset && typeof asset.name === 'string' && /^NvProfileSwitcher-Setup-v[0-9]+(?:\.[0-9]+)*\.exe$/i.test(asset.name)
+    );
     if (!match || !/^https:\/\/github\.com\/mgcarnevali\/NvProfileSwitcher\/releases\/download\//i.test(match.browser_download_url || '')) {
       throw new Error('Matching download asset not found');
     }
-    status.textContent = 'Redirecting to ' + match.name + '…';
+
     fallback.href = match.browser_download_url;
     fallback.textContent = 'Download ' + match.name + ' manually';
-    window.location.replace(match.browser_download_url);
-  } catch (error) {
-    status.textContent = 'Automatic download unavailable. Use the link below to choose the file on GitHub Releases.';
+
+    // Trigger the download without navigating away from this countdown page.
+    const link = document.createElement('a');
+    link.href = match.browser_download_url;
+    link.download = match.name;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    document.getElementById('heading').textContent = 'Download requested!';
+    status.textContent = 'If the download did not start, use the link below.';
+    document.getElementById('countdown').hidden = false;
+
+    let seconds = 3;
+    const timer = setInterval(() => {
+      seconds--;
+      document.getElementById('seconds').textContent = seconds;
+      if (seconds > 0) return;
+      clearInterval(timer);
+      window.close();
+      // Browsers commonly block closing a tab opened by a normal link.
+      // In that case, return to the README instead of leaving this page open.
+      setTimeout(() => {
+        window.location.replace('https://github.com/mgcarnevali/NvProfileSwitcher#download');
+      }, 350);
+    }, 1000);
+  } catch (_) {
+    document.getElementById('heading').textContent = 'Automatic download unavailable';
+    status.textContent = 'Use the link below to choose the file on GitHub Releases.';
   }
 })();
 </script>
